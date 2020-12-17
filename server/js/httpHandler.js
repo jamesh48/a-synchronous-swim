@@ -14,7 +14,18 @@ module.exports.initialize = (queue) => {
 
 module.exports.router = (req, res, next = ()=>{}) => {
   console.log('Serving request type ' + req.method + ' for url ' + req.url);
-  res.writeHead(200, headers);
-  res.end();
+  if (req.method === 'OPTIONS' && req.url === '/') {
+    res.writeHead(200, headers);
+    res.end();
+  } else if (req.method === 'GET' && req.url === '/') {
+    // Generate random swim command
+    let directions = ['left', 'right', 'up', 'down'];
+    let randomDir = directions[Math.floor(Math.random() * directions.length)];
+    // Send swim command to response request
+    res.writeHead(200, headers);
+    res.write(randomDir);
+    res.end();
+  }
+
   next(); // invoke next() at the end of a request to help with testing!
 };
