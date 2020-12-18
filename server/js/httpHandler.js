@@ -23,7 +23,6 @@ module.exports.router = (req, res, next = ()=>{}) => {
     //let randomDir = directions[Math.floor(Math.random() * directions.length)];
     // Send swim command to response request
     var message = messageQueue.dequeue();
-    console.log(message);
     res.writeHead(200, headers);
     res.write(message);
     res.end();
