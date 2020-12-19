@@ -47,9 +47,22 @@ module.exports.router = (req, res, next = ()=>{}) => {
          res.end();
          next();
         }
-        // res.end();
       });
     }
+  } else if (req.method === 'POST' && req.url === '/background.jpg') {
+    let prevSavedFile = this.backgroundImageFile;
+    fs.writeFile(this.backgroundImageFile, req.data, function(err) {
+      if (err) {
+        res.writeHead(404, headers);
+        res.end();
+        next();
+      } else {
+        res.writeHead(201, headers);
+        res.write(prevSavedFile);
+        res.end();
+        next();
+      }
+    });
   }
   // next(); // invoke next() at the end of a request to help with testing!
 };
