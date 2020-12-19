@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const headers = require('./cors');
 const multipart = require('./multipartUtils');
+// const backgroundImg = require('../background.jpg');
 
 // Path for the background image ///////////////////////
 module.exports.backgroundImageFile = path.join('.', 'background.jpg');
@@ -17,16 +18,38 @@ module.exports.router = (req, res, next = ()=>{}) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(200, headers);
     res.end();
-  } else if (req.method === 'GET' && req.url === '/') {
-    // Generate random swim command
-    //let directions = ['left', 'right', 'up', 'down'];
-    //let randomDir = directions[Math.floor(Math.random() * directions.length)];
-    // Send swim command to response request
-    var message = messageQueue.dequeue();
-    res.writeHead(200, headers);
-    res.write(message);
-    res.end();
+    next();
+  } else if (req.method === 'GET') {
+    if (req.url === '/') {
+      //var message = messageQueue.dequeue();
+      res.writeHead(200, headers);
+      res.write('up');
+      res.end();
+      next();
+    } else if (req.url === '/background.jpg') {
+      console.log('serving background image');
+      //let data = fs.readFileSync(this.backgroundImageFile);
+      //if (data) {
+        // res.writeHead(200, headers);
+        // res.write(data)
+      //  } else {
+      //   res.writeHead(404, headers);
+      // }
+      // res.end();
+      fs.readFile(this.backgroundImageFile, function(err, data) {
+        if (err) {
+          res.writeHead(404, headers);
+          res.end();
+          next();
+        } else {
+         res.writeHead(200, headers);
+         res.write(data);
+         res.end();
+         next();
+        }
+        // res.end();
+      });
+    }
   }
-
-  next(); // invoke next() at the end of a request to help with testing!
+  // next(); // invoke next() at the end of a request to help with testing!
 };
