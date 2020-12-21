@@ -28,15 +28,7 @@ module.exports.router = (req, res, next = ()=>{}) => {
       next();
     } else if (req.url === '/background.jpg') {
       console.log('serving background image');
-      //let data = fs.readFileSync(this.backgroundImageFile);
-      //if (data) {
-        // res.writeHead(200, headers);
-        // res.write(data)
-      //  } else {
-      //   res.writeHead(404, headers);
-      // }
-      // res.end();
-      fs.readFile(this.backgroundImageFile, function(err, data) {
+      fs.readFile(module.exports.backgroundImageFile, function(err, data) {
         if (err) {
           res.writeHead(404, headers);
           res.end();
@@ -50,19 +42,26 @@ module.exports.router = (req, res, next = ()=>{}) => {
       });
     }
   } else if (req.method === 'POST' && req.url === '/background.jpg') {
-    let prevSavedFile = this.backgroundImageFile;
-    fs.writeFile(this.backgroundImageFile, req.data, function(err) {
-      if (err) {
-        res.writeHead(404, headers);
-        res.end();
-        next();
-      } else {
-        res.writeHead(201, headers);
-        res.write(prevSavedFile);
-        res.end();
-        next();
-      }
+    var fileData = Buffer.alloc(0);
+
+    req.on('data', (chunk) => {
+      fileData = Buffer.concat([fileData, chunk]);
     });
+
+    req.on('end', () => {
+      var file = multipart.getFile(fileData);
+      fs.writeFile(module.exports.backgroundImageFile, file.data, function(err) {
+        if (err) {
+          res.writeHead(404, headers);
+          res.end();
+          next();
+        } else {
+          res.writeHead(201, headers);
+          res.end();
+          next();
+        }
+      });
+    })
   }
   // next(); // invoke next() at the end of a request to help with testing!
 };

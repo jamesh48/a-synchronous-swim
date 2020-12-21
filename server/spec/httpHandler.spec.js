@@ -56,7 +56,7 @@ describe('server responses', () => {
   });
 
 
-  var postTestFile = path.join('.', 'spec', 'water-lg.jpg');
+  var postTestFile = path.join('.', 'spec', 'water-lg.multipart');
 
   it('should respond to a POST request to save a background image', (done) => {
     fs.readFile(postTestFile, (err, fileData) => {
