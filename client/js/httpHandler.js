@@ -1,6 +1,7 @@
 (function() {
 
   const serverUrl = 'http://127.0.0.1:3000';
+  const uploadUrl = serverUrl + '/background.jpg';
 
   //
   // TODO: build the swim command fetcher here
@@ -11,13 +12,13 @@
   // Note: remember to fix the URL below.
   /////////////////////////////////////////////////////////////////////
 
-  const ajaxFileUplaod = (file) => {
+  const ajaxFileUpload = (file) => {
     var formData = new FormData();
     formData.append('file', file);
     $.ajax({
       type: 'POST',
       data: formData,
-      url: 'FILL_ME_IN',
+      url: uploadUrl,
       cache: false,
       contentType: false,
       processData: false,
@@ -27,6 +28,18 @@
       }
     });
   };
+
+  const moveSwimmers = () => {
+    $.ajax({
+      type: 'GET',
+      url: serverUrl,
+      success: (command) => {
+        SwimTeam.move(command);
+      },
+    })
+  }
+
+  // setInterval(moveSwimmers, 500);
 
   $('form').on('submit', function(e) {
     e.preventDefault();
@@ -42,8 +55,7 @@
       console.log('Not a jpg file!');
       return;
     }
-
-    ajaxFileUplaod(file);
+    ajaxFileUpload(file);
   });
 
 })();

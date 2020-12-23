@@ -14,6 +14,7 @@ module.exports.initialize = (queue) => {
 };
 
 module.exports.router = (req, res, next = ()=>{}) => {
+
   console.log('Serving request type ' + req.method + ' for url ' + req.url);
   if (req.method === 'OPTIONS') {
     res.writeHead(200, headers);
@@ -21,24 +22,22 @@ module.exports.router = (req, res, next = ()=>{}) => {
     next();
   } else if (req.method === 'GET') {
     if (req.url === '/') {
-      //var message = messageQueue.dequeue();
       res.writeHead(200, headers);
-      res.write('up');
-      res.end();
+      res.end(messageQueue.dequeue());
       next();
     } else if (req.url === '/background.jpg') {
       console.log('serving background image');
-      fs.readFile(module.exports.backgroundImageFile, function(err, data) {
+      fs.readFile(this.backgroundImageFile, (err, data) => {
         if (err) {
           res.writeHead(404, headers);
-          res.end();
-          next();
+          console.log(err);
         } else {
          res.writeHead(200, headers);
          res.write(data);
-         res.end();
-         next();
+        //  res.write(data, 'binary');
         }
+        res.end();
+        next();
       });
     }
   } else if (req.method === 'POST' && req.url === '/background.jpg') {
@@ -50,14 +49,14 @@ module.exports.router = (req, res, next = ()=>{}) => {
 
     req.on('end', () => {
       var file = multipart.getFile(fileData);
-      fs.writeFile(module.exports.backgroundImageFile, file.data, function(err) {
+      fs.writeFile(this.backgroundImageFile, file.data, function(err) {
         if (err) {
           res.writeHead(404, headers);
           res.end();
           next();
         } else {
           res.writeHead(201, headers);
-          res.end();
+          res.end(file.data);
           next();
         }
       });

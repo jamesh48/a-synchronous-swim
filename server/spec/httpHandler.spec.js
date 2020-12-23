@@ -24,10 +24,17 @@ describe('server responses', () => {
   it('should respond to a GET request for a swim command', (done) => {
     let {req, res} = server.mock('/', 'GET');
 
+    const queue = require('../js/messageQueue');
+    httpHandler.initialize(queue);
+
+    const commands = ['up', 'down', 'left', 'right'];
+    let index = Math.floor(Math.random() * commands.length);
+    queue.enqueue(commands[index]);
+
     httpHandler.router(req, res);
     expect(res._responseCode).to.equal(200);
     expect(res._ended).to.equal(true);
-    expect(['left', 'right', 'up', 'down'].indexOf(res._data.toString()) >= 0).to.equal(true);
+    expect(commands).to.contain(res._data.toString());
     done();
   });
 
@@ -44,7 +51,7 @@ describe('server responses', () => {
 
   it('should respond with 200 to a GET request for a present background image', (done) => {
     // write your test here
-    httpHandler.backgroundImageFile = path.join('.', 'spec', 'background.jpg');
+    httpHandler.backgroundImageFile = path.join('.', 'spec', 'water-lg.multipart');
     let {req, res} = server.mock('/background.jpg', 'GET');
 
     httpHandler.router(req, res, () => {
@@ -79,7 +86,9 @@ describe('server responses', () => {
       httpHandler.router(post.req, post.res, () => {
         let get = server.mock('/background.jpg', 'GET');
         httpHandler.router(get.req, get.res, () => {
-          expect(Buffer.compare(fileData, get.res._data)).to.equal(0);
+          const multipart = require('../js/multipartUtils');
+          var file = multipart.getFile(fileData);
+          expect(Buffer.compare(file.data, get.res._data)).to.equal(0);
           done();
         });
       });
